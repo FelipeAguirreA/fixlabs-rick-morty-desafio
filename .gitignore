@@ -1,0 +1,33 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Node
+node_modules/
+npmrc
+.pnpm-store/
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Builds
+dist/
+build/
+out/
+.next/
+coverage/
+
+# Nest cache
+.nest/
