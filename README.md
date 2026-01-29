@@ -11,6 +11,32 @@ Buscador de personajes de Rick and Morty con integración entre personajes y sus
 
 ---
 
+## 🧱 Arquitectura General
+
+Repositorio monorepo con dos proyectos independientes:
+
+### Backend
+- NestJS + TypeScript
+- Consume la API pública de Rick and Morty
+- Expone el endpoint:
+  - `GET /character/:id`
+- Enriquece automáticamente la información del personaje con los datos de su locación de origen
+- Manejo de errores (404 / errores de servicio)
+- CORS habilitado para comunicación con el frontend
+
+### Frontend
+- Next.js (App Router) + TypeScript
+- Tailwind CSS
+- Funcionalidades:
+  - Búsqueda por nombre con **debounce (350ms)**
+  - Filtro por estado (Alive / Dead / Unknown)
+  - Carga de detalle desde el backend
+  - Skeleton loading
+  - Interfaz responsive
+- Tipado estricto (sin uso de `any`)
+
+---
+
 ## 📦 Instalación de Dependencias
 
 ### Backend (NestJS)
@@ -31,78 +57,102 @@ npm install
 
 Necesitas abrir **dos terminales** (una para backend, otra para frontend):
 
-### Terminal 1 - Backend
+### Terminal 1 – Backend
 ```bash
 cd backend
 npm run start:dev
 ```
-El backend estará disponible en: `http://localhost:3000`
 
-### Terminal 2 - Frontend
+Servidor disponible en: `http://localhost:3000`
+
+Prueba rápida: `http://localhost:3000/character/1`
+
+### Terminal 2 – Frontend
 ```bash
 cd frontend
 npm run dev
 ```
-El frontend estará disponible en: `http://localhost:3001`
 
-Abre tu navegador en [http://localhost:3001](http://localhost:3001) para ver la aplicación.
+Aplicación disponible en: `http://localhost:3001`
+
+---
+
+## ⚙️ Variables de Entorno (Frontend)
+
+Crear el archivo `frontend/.env.local` con el siguiente contenido:
+
+```
+NEXT_PUBLIC_BACKEND_URL=http://localhost:3000
+```
+
+Esta variable indica la URL del backend desde donde el frontend obtiene el detalle del personaje.
+
+---
+
+## 🔌 Flujo de Funcionamiento
+
+1. El usuario busca un personaje por nombre.
+2. El frontend consulta la API pública de Rick and Morty (con debounce).
+3. Se muestran los resultados filtrables por estado.
+4. Al seleccionar un personaje:
+   - El frontend llama al backend `GET /character/:id`
+   - El backend obtiene y enriquece los datos (incluyendo locación de origen).
+   - El frontend muestra la información completa del personaje.
 
 ---
 
 ## 🎯 Decisiones Técnicas
 
-### 1. **Backend: Enriquecimiento Automático de Datos**
-**¿Por qué?** Cuando consultas un personaje por ID, el backend automáticamente obtiene información extra de su locación de origen (nombre, tipo, dimensión) y la incluye en la respuesta.
+### Backend: Enriquecimiento Automático de Datos
 
-**Beneficio:** El frontend recibe todos los datos en una sola llamada, sin tener que hacer consultas adicionales.
+Cuando se consulta un personaje por ID, el backend obtiene automáticamente la información de su locación de origen (nombre, tipo y dimensión).
 
-**Ejemplo:** 
-```
-GET /character/1 
-→ Devuelve personaje + datos completos de su ubicación de origen
-```
+**Beneficio:** el frontend recibe toda la información en una sola llamada, sin depender de múltiples requests.
 
-### 2. **Frontend: Búsqueda con Debounce (350ms)**
-**¿Por qué?** Cuando se escribe en el buscador, el sistema espera 350ms después de tu última letra antes de buscar.
+### Frontend: Búsqueda con Debounce
 
-**Beneficio:** Evita hacer demasiadas peticiones mientras se escribe. Si escribes "Rick", no busca por "R", "Ri", "Ric", "Rick" (4 veces), sino solo una vez cuando terminas de escribir.
+La búsqueda espera 350ms desde la última pulsación antes de ejecutar la consulta.
 
-**Implementado en:** `SearchBar.tsx`
+**Beneficio:** reduce llamadas innecesarias a la API y mejora el rendimiento.
 
-### 3. **TypeScript Sin 'any'**
-**¿Por qué?** Todo el código usa tipos específicos (string, number, interfaces) en lugar del tipo genérico `any`.
+### TypeScript sin `any`
 
-**Beneficio:** El editor avisa de errores mientras se escribe código, antes de ejecutar. Es como tener un asistente que revisa el código constantemente.
+Todo el proyecto utiliza tipado explícito.
 
-### 4. **Arquitectura Modular**
-**Backend:**
-- `Controller` → Recibe las peticiones HTTP
-- `Service` → Contiene la lógica del negocio
-- `Module` → Organiza y conecta todo
+**Beneficio:** mayor seguridad, mejor mantenibilidad y detección temprana de errores.
 
-**Frontend:**
-- `page.tsx` → Página principal
-- Componentes separados → `SearchBar`, `CharacterCard`, `SkeletonCard`
+### Arquitectura Modular
 
-**Beneficio:** Cada archivo tiene una responsabilidad clara. Si algo falla, sabes dónde buscar.
+**Backend**
+- Controller: manejo de rutas HTTP
+- Service: lógica de negocio
+- Module: organización y dependencias
 
-### 5. **Tailwind CSS**
-**¿Por qué?** Framework de CSS que usa clases utility (ej: `bg-blue-500`, `p-4`, `rounded-lg`).
+**Frontend**
+- page.tsx: página principal
+- Componentes reutilizables (SearchBar, CharacterCard, SkeletonCard)
 
-**Beneficio:** Se escriben estilos rápidamente sin salir del HTML. Fácil de mantener.
+Cada archivo tiene una responsabilidad clara.
 
-### 6. **Manejo de Errores**
-**Backend:**
-- Si el personaje no existe → Error 404
-- Si la API externa falla → Error 500
+### Tailwind CSS
 
-**Frontend:**
-- Muestra mensajes amigables al usuario
-- Muestra "skeletons" (placeholders animados) mientras carga
+Uso de clases utility para estilado rápido y consistente.
+
+**Beneficio:** estilos claros, mantenibles y sin CSS adicional innecesario.
+
+### Manejo de Errores
+
+**Backend**
+- Personaje inexistente → 404
+- Fallos de la API externa → error de servicio
+
+**Frontend**
+- Mensajes claros al usuario
+- Skeletons visibles durante la carga
 
 ---
 
-## 📁 Estructura Simplificada
+## 📁 Estructura del Proyecto
 
 ```
 fixlabs-rm-api/
@@ -126,18 +176,3 @@ fixlabs-rm-api/
 ```
 
 ---
-
-## 🔌 ¿Cómo Funciona?
-
-1. **Buscas un personaje** → El frontend busca en la API de Rick & Morty y muestra resultados
-2. **Seleccionas un personaje** → El frontend llama a tu backend `GET /character/:id`
-3. **EL backend:**
-   - Obtiene datos del personaje
-   - Si tiene una ubicación de origen, la consulta automáticamente
-   - Devuelve todo junto al frontend
-4. **El frontend muestra** la tarjeta completa con toda la información
-
----
-
-
-**¡A explorar el multiverso de Rick & Morty!** 🚀
