@@ -34,7 +34,13 @@ Repositorio monorepo con dos proyectos independientes:
   - Skeleton loading
   - Interfaz responsive
 - Tipado estricto (sin uso de `any`)
+---
+## 🔄 Clonar el Repositorio
 
+```bash
+git clone https://github.com/FelipeAguirreA/fixlabs-rick-morty-desafio.git
+cd fixlabs-rm-api
+```
 ---
 
 ## 📦 Instalación de Dependencias
