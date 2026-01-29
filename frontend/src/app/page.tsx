@@ -120,7 +120,7 @@ export default function Page() {
     };
   }, [debouncedQuery]);
 
-  // Cargar detalle desde tu backend cuando seleccionas un ID
+  // Cargar detalle desde el backend cuando se selecciona un ID
   useEffect(() => {
     let cancelled = false;
 
@@ -148,98 +148,111 @@ export default function Page() {
   }, [selectedId]);
 
   return (
-    <main className="min-h-screen p-6">
-      <div className="mx-auto w-full max-w-4xl space-y-6">
-        <header className="space-y-2">
-          <h1 className="text-2xl font-bold">Rick & Morty Explorer</h1>
-          <p className="text-gray-600">
-            Busca personajes, filtra por estado y carga el detalle desde tu backend.
+    <main className="min-h-screen p-4 md:p-8">
+      <div className="mx-auto w-full max-w-5xl space-y-8">
+        <header className="space-y-4 text-center md:text-left">
+          <div className="flex items-center justify-center md:justify-start gap-3 mb-4">
+            <div className="text-4xl md:text-5xl">🎬</div>
+            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 via-cyan-400 to-teal-400 bg-clip-text text-transparent">Rick & Morty Explorer</h1>
+          </div>
+          <p className="text-gray-300 max-w-2xl text-base md:text-lg leading-relaxed">
+            Descubre personajes del multiverso de Rick y Morty. Busca, filtra y explora detalles fascinantes de tus personajes favoritos.
           </p>
         </header>
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <SearchBar value={debouncedQuery} onDebouncedChange={onDebouncedChange} />
+        <section className="glass-effect rounded-2xl p-6 md:p-8 space-y-6 glow-effect">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            <SearchBar value={debouncedQuery} onDebouncedChange={onDebouncedChange} />
 
-          <div>
-            <label className="block text-sm font-medium mb-2">
-              Filtrar por status
-            </label>
+            <div>
+              <label className="block text-sm font-semibold mb-3 text-gray-200">
+                Filtrar por estado
+              </label>
 
-            <select
-              value={statusFilter}
-              onChange={(e) =>
-                setStatusFilter(
-                  e.target.value as 'all' | 'Alive' | 'Dead' | 'unknown',
-                )
-              }
-              className="w-full rounded-md border px-3 py-2 outline-none focus:ring"
-            >
-              <option value="all">Todos</option>
-              <option value="Alive">Alive</option>
-              <option value="Dead">Dead</option>
-              <option value="unknown">Unknown</option>
-            </select>
+              <select
+                value={statusFilter}
+                onChange={(e) =>
+                  setStatusFilter(
+                    e.target.value as 'all' | 'Alive' | 'Dead' | 'unknown',
+                  )
+                }
+                className="w-full rounded-lg bg-slate-700/50 border border-slate-600 px-4 py-3 text-gray-100 outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="Alive">🟢 Vivos</option>
+                <option value="Dead">💀 Fallecidos</option>
+                <option value="unknown">❓ Desconocido</option>
+              </select>
 
-            <p className="mt-2 text-xs text-gray-500">
-              Tip: si no aparece nada, prueba otra búsqueda.
-            </p>
+              <p className="mt-2 text-xs text-gray-400">
+                💡 Tip: Combina búsqueda y filtro para mejores resultados.
+              </p>
+            </div>
           </div>
         </section>
 
-        <section className="rounded-lg border p-4">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="font-semibold">Resultados</h2>
+        <section className="glass-effect rounded-2xl p-6 md:p-8">
+          <div className="flex items-center justify-between gap-3 mb-6">
+            <h2 className="text-2xl font-bold text-gray-100">🔍 Resultados</h2>
 
             {loadingOptions ? (
-              <span className="text-sm text-gray-500">Buscando...</span>
+              <span className="text-sm text-blue-400 animate-pulse font-medium">⏳ Buscando...</span>
             ) : (
-              <span className="text-sm text-gray-500">
-                {filteredOptions.length} encontrados
+              <span className="text-sm text-gray-400 bg-slate-700/50 px-3 py-1 rounded-full">
+                {filteredOptions.length} personaje{filteredOptions.length !== 1 ? 's' : ''} encontrado{filteredOptions.length !== 1 ? 's' : ''}
               </span>
             )}
           </div>
 
-          <div className="mt-4 grid grid-cols-1 gap-2 md:grid-cols-2">
+          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
             {loadingOptions ? (
               <>
-                <div className="h-10 rounded bg-gray-100 animate-pulse" />
-                <div className="h-10 rounded bg-gray-100 animate-pulse" />
-                <div className="h-10 rounded bg-gray-100 animate-pulse" />
-                <div className="h-10 rounded bg-gray-100 animate-pulse" />
+                <div className="h-16 rounded-lg bg-slate-700/30 animate-pulse" />
+                <div className="h-16 rounded-lg bg-slate-700/30 animate-pulse" />
+                <div className="h-16 rounded-lg bg-slate-700/30 animate-pulse" />
+                <div className="h-16 rounded-lg bg-slate-700/30 animate-pulse" />
               </>
             ) : filteredOptions.length === 0 ? (
-              <p className="text-sm text-gray-600">Sin resultados.</p>
+              <p className="text-sm text-gray-400 col-span-full text-center py-8">😕 Sin resultados. Intenta otra búsqueda.</p>
             ) : (
-              filteredOptions.map((o) => (
-                <button
-                  key={o.id}
-                  onClick={() => setSelectedId(o.id)}
-                  className={`rounded border px-3 py-2 text-left hover:bg-gray-50 ${
-                    selectedId === o.id ? 'ring-2' : ''
-                  }`}
-                >
-                  <div className="font-medium">{o.name}</div>
-                  <div className="text-xs text-gray-600">{o.status}</div>
-                </button>
-              ))
+              filteredOptions.map((o) => {
+                const statusColor = o.status === 'Alive' ? 'from-green-500/20 to-green-600/20 border-green-500/30' : o.status === 'Dead' ? 'from-red-500/20 to-red-600/20 border-red-500/30' : 'from-gray-500/20 to-gray-600/20 border-gray-500/30';
+                const statusIcon = o.status === 'Alive' ? '🟢' : o.status === 'Dead' ? '💀' : '❓';
+                
+                return (
+                  <button
+                    key={o.id}
+                    onClick={() => setSelectedId(o.id)}
+                    className={`bg-gradient-to-br ${statusColor} rounded-lg px-4 py-3 text-left transition-all duration-200 hover:shadow-lg hover:shadow-blue-500/20 border ${
+                      selectedId === o.id ? 'ring-2 ring-blue-400 shadow-lg shadow-blue-500/40' : 'hover:bg-slate-700/40'
+                    }`}
+                  >
+                    <div className="font-semibold text-gray-100">{o.name}</div>
+                    <div className="text-xs text-gray-400 mt-1">{statusIcon} {o.status}</div>
+                  </button>
+                );
+              })
             )}
           </div>
         </section>
 
-        <section className="space-y-3">
-          <h2 className="font-semibold">Detalle</h2>
+        <section className="space-y-4">
+          <h2 className="text-2xl font-bold text-gray-100">📋 Detalles del Personaje</h2>
 
           {error ? (
-            <div className="rounded-lg border p-4 text-sm text-red-600">
-              {error}
+            <div className="glass-effect rounded-2xl p-6 border-red-500/50 bg-gradient-to-br from-red-500/10 to-red-600/10 text-sm text-red-300 text-center">
+              ⚠️ {error}
             </div>
           ) : loadingDetail ? (
             <SkeletonCard />
           ) : character ? (
             <CharacterCard character={character} />
           ) : (
-            <div className="rounded-lg border p-4 text-sm text-gray-600">
-              Selecciona un personaje para ver el detalle.
+            <div className="glass-effect rounded-2xl p-12 text-center glow-effect">
+              <div className="text-5xl mb-4">👤</div>
+              <p className="text-gray-400 text-lg">
+                Selecciona un personaje de la lista para ver sus detalles.
+              </p>
             </div>
           )}
         </section>
